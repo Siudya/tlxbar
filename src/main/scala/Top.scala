@@ -67,21 +67,24 @@ class Top(implicit p: Parameters) extends Module {
   }
   when(timer === 10.U) {
     slvDValid(0) := true.B
-    slvDOpcode(0) := 1.U
+    slvDOpcode(0) := 0.U
     slvDSize(0) := 3.U
     slvDSource(0) := 0x0.U
 
     slvDValid(1) := true.B
-    slvDOpcode(1) := 0.U
+    slvDOpcode(1) := 1.U
     slvDSize(1) := 3.U
     slvDSource(1) := 0x1.U
   }
-
-  when(timer === 12.U) {
+  when(timer === 11.U) {
     slvDValid(1) := false.B
   }
+  when(timer === 12.U) {
+    slvDValid(0) := false.B
+    slvDValid(1) := true.B
+  }
   when(timer === 13.U) {
-    slvDSource(0) := 0x2.U
+    slvDSource(1) := 0x2.U
   }
 }
 

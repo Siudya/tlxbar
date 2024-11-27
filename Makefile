@@ -7,24 +7,27 @@ idea:
 comp:
 	mill -i tlxbar.compile
 
-verilog:
+CWD = $(abspath .)
+
+verilog: $(CWD)/src/main/scala/Top.scala
+	
 	mkdir -p build
-	mill -i tlxbar.runMain DutMain --target systemverilog --full-stacktrace -td build
+	mill -i tlxbar.runMain DutMain --target systemverilog --full-stacktrace -td $(CWD)/build
 
 VERILATOR_OPT = --exe --cc --top-module Top --x-assign unique --trace --threads 2
-VERILATOR_OPT += -Mdir sim/emu build/Top.sv src/test/cpp/main.cpp
-VERILATOR_OPT += -CFLAGS "-std=c++17" -o sim/run/emu
+VERILATOR_OPT += -Mdir $(CWD)/sim/comp $(CWD)/build/Top.sv $(CWD)/src/test/cpp/main.cpp
+VERILATOR_OPT += -CFLAGS "-std=c++17" -o $(CWD)/sim/run/emu
 
-emu: verilog
-	mkdir -p sim/comp
-	mkdir -p sim/run
+emu:
+	mkdir -p $(CWD)/sim/comp
+	mkdir -p $(CWD)/sim/run
 	verilator $(VERILATOR_OPT)
-	$(MAKE) -C sim/comp -j8 VM_PARALLEL_BUILDS=1 OPT_FAST=-O3
+	$(MAKE) -C $(CWD)/sim/comp -f VTop.mk -j8 VM_PARALLEL_BUILDS=1 OPT_FAST=-O3
 
-sim: emu
+sim:
 	cd sim/run && ./emu
 
 clean:
 	rm -r build sim
 
-.PHONY: clean
+.PHONY: clean sim
